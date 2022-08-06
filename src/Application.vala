@@ -2,7 +2,7 @@ public class Application : Gtk.Application {
 
     public Application () {
         Object (
-            application_id: "com.github.nmmanx.temon",
+            application_id: "com.github.nmmanx.sensory",
             flags: ApplicationFlags.FLAGS_NONE
         );
     }
@@ -11,7 +11,7 @@ public class Application : Gtk.Application {
         var main_window = new Gtk.ApplicationWindow (this) {
             default_height = 300,
             default_width = 300,
-            title = "Temon"
+            title = "Sensory"
         };
         main_window.show_all ();
     }

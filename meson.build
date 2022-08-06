@@ -1,4 +1,4 @@
-project('com.github.nmmanx.temon', 'vala', 'c')
+project('com.github.nmmanx.sensory', 'vala', 'c')
 
 cc = meson.get_compiler('c')
 valac = meson.get_compiler('vala')

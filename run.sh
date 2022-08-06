@@ -6,4 +6,4 @@ meson build --prefix=/usr
 cd build
 ninja
 
-[ 0 -eq $? ] && ./com.github.nmmanx.temon
+[ 0 -eq $? ] && ./com.github.nmmanx.sensory
