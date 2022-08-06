@@ -19,17 +19,20 @@
 namespace Sensors {
     public const uint API_VERSION;
 
-    public const uint ERR_WILDCARDS;   /* Wildcard found in chip name */
-    public const uint ERR_NO_ENTRY;	   /* No such subfeature known */
-    public const uint ERR_ACCESS_R;    /* Can't read */
-    public const uint ERR_KERNEL;      /* Kernel interface error */
-    public const uint ERR_DIV_ZERO;	   /* Divide by zero */
-    public const uint ERR_CHIP_NAME;   /* Can't parse chip name */
-    public const uint ERR_BUS_NAME;    /* Can't parse bus name */
-    public const uint ERR_PARSE;       /* General parse error */
-    public const uint ERR_ACCESS_W;    /* Can't write */
-    public const uint ERR_IO;          /* I/O error */
-    public const uint ERR_RECURSION;   /* Evaluation recurses too deep */
+    public const int ERR_WILDCARDS;   /* Wildcard found in chip name */
+    public const int ERR_NO_ENTRY;	  /* No such subfeature known */
+    public const int ERR_ACCESS_R;    /* Can't read */
+    public const int ERR_KERNEL;      /* Kernel interface error */
+    public const int ERR_DIV_ZERO;	  /* Divide by zero */
+    public const int ERR_CHIP_NAME;   /* Can't parse chip name */
+    public const int ERR_BUS_NAME;    /* Can't parse bus name */
+    public const int ERR_PARSE;       /* General parse error */
+    public const int ERR_ACCESS_W;    /* Can't write */
+    public const int ERR_IO;          /* I/O error */
+    public const int ERR_RECURSION;   /* Evaluation recurses too deep */
+
+    [CCode (cname = "sensors_strerror")]
+    public unowned string strerror (int errnum);
 
     [CCode (cname = "int", cprefix = "SENSORS_BUS_TYPE_", has_type_id = false)]
     public enum BusType {
@@ -198,4 +201,46 @@ namespace Sensors {
         int mapping;
         uint flags;
     }
+
+    [CCode (cname = "sensors_init")]
+    public int init (GLib.FileStream? input);
+
+    [CCode (cname = "sensors_cleanup")]
+    public int cleanup ();
+
+    [CCode (cname = "sensors_parse_chip_name")]
+    public int parse_chip_name (string orig_name, out Sensors.ChipName res);
+
+    [CCode (cname = "sensors_free_chip_name")]
+    public int free_chip_name (Sensors.ChipName chip);
+
+    [CCode (cname = "sensors_snprintf_chip_name")]
+    public int snprintf_chip_name (string str, size_t size, Sensors.ChipName chip);
+
+    [CCode (cname = "sensors_get_adapter_name")]
+    public unowned string? get_adapter_name (Sensors.BusId bus);
+
+    [CCode (cname = "sensors_get_label")]
+    public unowned string? get_label (Sensors.ChipName name, Sensors.Feature feature);
+
+    [CCode (cname = "sensors_get_value")]
+    public int get_value (Sensors.ChipName name, int subfeat_nr, out double value);
+
+    [CCode (cname = "sensors_set_value")]
+    public int set_value (Sensors.ChipName name, int subfeat_nr, double value);
+
+    [CCode (cname = "sensors_do_chip_sets")]
+    public int do_chip_sets (Sensors.ChipName name);
+
+    [CCode (cname = "sensors_get_detected_chips")]
+    public unowned Sensors.ChipName? get_detected_chips (Sensors.ChipName? match, ref int nr);
+
+    [CCode (cname = "sensors_get_features")]
+    public unowned Sensors.Feature? get_features (Sensors.ChipName name, ref int nr);
+
+    [CCode (cname = "sensors_get_all_subfeatures")]
+    public unowned Sensors.SubFeature? get_all_subfeatures (Sensors.ChipName name, Sensors.Feature feature, ref int nr);
+
+    [CCode (cname = "sensors_get_subfeature")]
+    public unowned Sensors.SubFeature? get_subfeature (Sensors.ChipName name, Sensors.Feature feature, ref int nr);
 }
