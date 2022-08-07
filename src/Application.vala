@@ -1,5 +1,12 @@
 public class Application : Gtk.Application {
 
+    construct {
+        this.shutdown.connect (() => {
+            stdout.printf ("libsensors clean-up\n");
+            Sensors.cleanup ();
+        });
+    }
+
     public Application () {
         Object (
             application_id: "com.github.nmmanx.sensory",
@@ -8,20 +15,16 @@ public class Application : Gtk.Application {
     }
 
     protected override void activate () {
+        stdout.printf ("libsensors init\n");
+        Sensors.init (null);
+
+        var tmp = SensorChip.get_all_sensor_chips ();
+        
         var main_window = new MainWindow (this);
         main_window.show_all ();
     }
 
     public static int main (string[] args) {
-        var info = "libsensors version: %s\napi version: %#x\n".printf (Sensors.version, Sensors.API_VERSION);
-        print (info);
-        Sensors.init (null);
-        int nr = 0;
-        unowned Sensors.ChipName? chip = null;
-        while ((chip = Sensors.get_detected_chips (null, ref nr)) != null) {
-            stdout.printf("Chip: %s\n", chip.prefix);
-        }
-        Sensors.cleanup ();
         return new Application ().run (args);
     }
 }

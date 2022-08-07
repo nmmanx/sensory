@@ -14,11 +14,16 @@ executable(
     meson.project_name(),
     'src' / 'Application.vala',
     'src' / 'MainWindow.vala',
-    'src' / 'SensorView.vala',
+    'src' / 'SensorTreeView.vala',
     'src' / 'GraphPanel.vala',
+    'src' / 'SensorViewModel.vala',
+    'src' / 'model/SensorChip.vala',
+    'src' / 'model/ChipFeature.vala',
+    'src' / 'model/ChipSubFeature.vala',
     'src' / 'Debug.vala',
     dependencies: [
         dependency('gtk+-3.0'),
+        dependency('gee-0.8'),
         libsensors,
         libsensors_vapi
     ],
