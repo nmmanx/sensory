@@ -1,7 +1,7 @@
 public class ChipFeature {
-    private unowned Sensors.Feature feature;
+    public unowned Sensors.Feature feature { private set; get; }
     private SensorChip sensor_chip;
-    private Gee.List<ChipSubFeature> subfeats;
+    public Gee.List<ChipSubFeature> subfeats { private set; get; }
 
     public ChipFeature (SensorChip sensor_chip, Sensors.Feature feature) {
         this.sensor_chip = sensor_chip;
@@ -16,8 +16,8 @@ public class ChipFeature {
 
         stdout.printf ("\tChipFeature %s:\n", feature.name);
         while ((subfeat = Sensors.get_all_subfeatures (sensor_chip.chip, feature, ref nr)) != null) {
-            stdout.printf ("\t\tChipSubFeature %s:\n", subfeat.name);
-            subfeats.add (new ChipSubFeature (this, subfeat));
+            stdout.printf ("\t\tChipSubFeature %s\n", subfeat.name);
+            subfeats.add (new ChipSubFeature (sensor_chip, this, subfeat));
         }
     }
 

@@ -1,6 +1,6 @@
 public class SensorChip {
     public unowned Sensors.ChipName chip { private set; get; }
-    private Gee.List<ChipFeature> features;
+    public Gee.List<ChipFeature> features { private set; get; }
 
     public SensorChip (Sensors.ChipName chip) {
         this.chip = chip;

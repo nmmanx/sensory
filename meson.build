@@ -15,6 +15,7 @@ executable(
     'src' / 'Application.vala',
     'src' / 'MainWindow.vala',
     'src' / 'SensorTreeView.vala',
+    'src' / 'SensorTreeStore.vala',
     'src' / 'GraphPanel.vala',
     'src' / 'SensorViewModel.vala',
     'src' / 'model/SensorChip.vala',
