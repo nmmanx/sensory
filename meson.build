@@ -13,6 +13,10 @@ libsensors_vapi = valac.find_library('libsensors', dirs: vapi_dir, required: tru
 executable(
     meson.project_name(),
     'src' / 'Application.vala',
+    'src' / 'MainWindow.vala',
+    'src' / 'SensorView.vala',
+    'src' / 'GraphPanel.vala',
+    'src' / 'Debug.vala',
     dependencies: [
         dependency('gtk+-3.0'),
         libsensors,

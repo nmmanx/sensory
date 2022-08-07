@@ -8,11 +8,7 @@ public class Application : Gtk.Application {
     }
 
     protected override void activate () {
-        var main_window = new Gtk.ApplicationWindow (this) {
-            default_height = 300,
-            default_width = 300,
-            title = "Sensory"
-        };
+        var main_window = new MainWindow (this);
         main_window.show_all ();
     }
 
