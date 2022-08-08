@@ -20,4 +20,8 @@ public class ChipSubFeature {
         }
         return true;
     }
+
+    public bool is_input_subfeat () {
+        return (int)subfeat.type == ((int)feature.feature.type << 8);
+    }
 }

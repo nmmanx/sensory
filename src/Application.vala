@@ -17,8 +17,6 @@ public class Application : Gtk.Application {
     protected override void activate () {
         stdout.printf ("libsensors init\n");
         Sensors.init (null);
-
-        var tmp = SensorChip.get_all_sensor_chips ();
         
         var main_window = new MainWindow (this);
         main_window.show_all ();

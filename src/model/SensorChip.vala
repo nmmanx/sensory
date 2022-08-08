@@ -14,7 +14,11 @@ public class SensorChip {
 
         stdout.printf ("SensorChip %s:\n", chip.prefix);
         while ((feature = Sensors.get_features (chip, ref nr)) != null) {
-            features.add (new ChipFeature (this, feature));
+            if (ChipFeature.is_supported_feature (feature)) {
+                features.add (new ChipFeature (this, feature));
+            } else {
+                stdout.printf ("Unsupported feature %s\n", feature.type.to_string ());
+            }
         }
     }
 

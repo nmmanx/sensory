@@ -25,4 +25,20 @@ public class ChipFeature {
         return this.sensor_chip.equal_to (other.sensor_chip) &&
                 this.feature.name == other.feature.name;
     }
+
+    public bool is_supported () {
+        return ChipFeature.is_supported_feature (feature);
+    }
+
+    public static bool is_supported_feature (Sensors.Feature feature) {
+        switch (feature.type) {
+            case Sensors.FeatureType.IN:
+            case Sensors.FeatureType.FAN:
+            case Sensors.FeatureType.TEMP:
+            case Sensors.FeatureType.POWER:
+                return true;
+            default:
+                return false;
+        }
+    }
 }

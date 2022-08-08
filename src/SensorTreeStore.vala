@@ -1,10 +1,10 @@
 public class SensorTreeStore : Gtk.TreeStore {
-    private Gee.List<SensorViewModel> view_models;
 
     construct {
-        GLib.Type columnTypes[2] = {
-            typeof(string),
-            typeof(string)
+        GLib.Type columnTypes[] = {
+            GLib.Type.STRING,
+            GLib.Type.STRING,
+            GLib.Type.BOOLEAN
         };
         set_column_types(columnTypes);
     }
@@ -25,16 +25,26 @@ public class SensorTreeStore : Gtk.TreeStore {
                 append (out iter2, iter);
                 set_value (iter2, 0, feature.feature.name);
 
-                Gtk.TreeIter iter3;
                 foreach (ChipSubFeature subfeat in feature.subfeats) {
-                    append (out iter3, iter2);
-                    set_value (iter3, 0, subfeat.subfeat.name);
-                    double val = 0;
-                    if (subfeat.get_value (out val)) {
-                        set_value (iter3, 1, val.to_string ());
+                    if (subfeat.is_input_subfeat ()) {
+                        double val = 0;
+                        if (subfeat.get_value (out val)) {
+                            set_value (iter2, 1, val.to_string ());
+                        }
+                        break;
                     }
                 }
             }
         }
+    }
+
+    public void setup_view (SensorTreeView view) {
+        view.on_graph_cell_toggled.connect ((path) => {
+            var iter = Gtk.TreeIter ();
+            GLib.Value val;
+            this.get_iter_from_string (out iter, path);
+            this.get_value (iter, 2, out val);
+            this.set_value (iter, 2, !val.get_boolean ());
+        });
     }
 }
