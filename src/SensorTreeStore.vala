@@ -38,15 +38,24 @@ public class SensorTreeStore : Gtk.TreeStore {
                     if (subfeat.is_input_subfeat ()) {
                         double val = 0;
                         if (subfeat.get_value (out val)) {
-                            set_value (iter2, 1, val.to_string ());
+                            Sensor ss = create_new_sensor (iter2, subfeat);
                             stdout.printf ("map: %s -> %s\n", get_string_from_iter (iter2), subfeat.get_name ());
-                            sensors.set (get_string_from_iter (iter2), new Sensor (subfeat));
+                            sensors.set (get_string_from_iter (iter2), ss);
+                            ss.update ();
                         }
                         break;
                     }
                 }
             }
         }
+    }
+
+    private Sensor create_new_sensor (Gtk.TreeIter iter, ChipSubFeature subfeat) {
+        Sensor sensor = new Sensor (subfeat);
+        sensor.on_value_changed.connect ((s, val) => {
+            set_value (iter, 1, val);
+        });
+        return sensor;
     }
 
     public void setup_view (SensorTreeView view) {
@@ -66,5 +75,11 @@ public class SensorTreeStore : Gtk.TreeStore {
             return (T)val.get_object ();
         }
         return null;
+    }
+
+    public void update () {
+        foreach (var entry in sensors) {
+            entry.value.update ();
+        }
     }
 }
