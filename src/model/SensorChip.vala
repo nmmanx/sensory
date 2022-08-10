@@ -1,9 +1,24 @@
 public class SensorChip {
     public unowned Sensors.ChipName chip { private set; get; }
     public Gee.List<ChipFeature> features { private set; get; }
+    private string name;
 
     public SensorChip (Sensors.ChipName chip) {
         this.chip = chip;
+
+        // Get full chip name
+        char[] str = new char[50];
+        var n = Sensors.snprintf_chip_name (str, chip);
+        if (n > 0) {
+            var sb = new GLib.StringBuilder ();
+            for (var i = 0; i < n; i++) {
+                sb.append_c (str[i]);
+            }
+            name = sb.str;
+        } else {
+            name = chip.prefix;
+        }
+
         build();
     }
 
@@ -37,5 +52,9 @@ public class SensorChip {
         }
 
         return all_chips;
+    }
+
+    public string get_name () {
+        return name;
     }
 }

@@ -51,7 +51,7 @@ namespace Sensors {
 
     [CCode (cname = "sensors_bus_id", has_type_id = false)]
     public struct BusId {
-        short type;
+        BusType type;
         short nr;
     }
 
@@ -214,7 +214,7 @@ namespace Sensors {
     public int free_chip_name (Sensors.ChipName chip);
 
     [CCode (cname = "sensors_snprintf_chip_name")]
-    public int snprintf_chip_name (string str, size_t size, Sensors.ChipName chip);
+    public int snprintf_chip_name (char[] str, Sensors.ChipName chip);
 
     [CCode (cname = "sensors_get_adapter_name")]
     public unowned string? get_adapter_name (Sensors.BusId bus);

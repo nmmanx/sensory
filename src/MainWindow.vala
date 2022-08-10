@@ -3,7 +3,7 @@ public class MainWindow : Gtk.ApplicationWindow {
     private GraphPanel graph_pannel;
 
     construct {
-        this.default_width = 800;
+        this.default_width = 1024;
         this.default_height = 480;
         this.title = "Sensory";
 

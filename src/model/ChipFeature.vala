@@ -41,4 +41,8 @@ public class ChipFeature {
                 return false;
         }
     }
+
+    public string get_name () {
+        return sensor_chip.get_name () + "/" + feature.name;
+    }
 }

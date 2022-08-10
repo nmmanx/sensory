@@ -1,12 +1,19 @@
 public class SensorTreeStore : Gtk.TreeStore {
+    private Gee.Map<string, Sensor> sensors;
+
+    public class GraphColumnData : GLib.Object {
+        public bool visible { set; get; }
+        public bool active { set; get; }
+    }
 
     construct {
         GLib.Type columnTypes[] = {
             GLib.Type.STRING,
             GLib.Type.STRING,
-            GLib.Type.BOOLEAN
+            GLib.Type.OBJECT
         };
         set_column_types(columnTypes);
+        sensors = new Gee.HashMap<string, Sensor> ();
     }
 
     public SensorTreeStore (Gee.List<SensorChip> chips) {
@@ -18,18 +25,22 @@ public class SensorTreeStore : Gtk.TreeStore {
 
         foreach (SensorChip chip in chips) {
             append (out iter, null);
-            set_value (iter, 0, chip.chip.prefix);
+            set_value (iter, 0, chip.get_name ());
+            set_value (iter, 2, new GraphColumnData () { visible = false, active = false });
 
             Gtk.TreeIter iter2;
             foreach (ChipFeature feature in chip.features) {
                 append (out iter2, iter);
                 set_value (iter2, 0, feature.feature.name);
+                set_value (iter2, 2, new GraphColumnData () { visible = true, active = false });
 
                 foreach (ChipSubFeature subfeat in feature.subfeats) {
                     if (subfeat.is_input_subfeat ()) {
                         double val = 0;
                         if (subfeat.get_value (out val)) {
                             set_value (iter2, 1, val.to_string ());
+                            stdout.printf ("map: %s -> %s\n", get_string_from_iter (iter2), subfeat.get_name ());
+                            sensors.set (get_string_from_iter (iter2), new Sensor (subfeat));
                         }
                         break;
                     }
@@ -41,10 +52,19 @@ public class SensorTreeStore : Gtk.TreeStore {
     public void setup_view (SensorTreeView view) {
         view.on_graph_cell_toggled.connect ((path) => {
             var iter = Gtk.TreeIter ();
-            GLib.Value val;
-            this.get_iter_from_string (out iter, path);
-            this.get_value (iter, 2, out val);
-            this.set_value (iter, 2, !val.get_boolean ());
+            get_iter_from_string (out iter, path);
+            var graph_col_data = get_column_object<GraphColumnData> (this, iter, 2);
+            graph_col_data.active = !graph_col_data.active;
+            set_value (iter, 2, graph_col_data);
         });
+    }
+
+    public static T? get_column_object<T> (Gtk.TreeModel model, Gtk.TreeIter iter, int col) {
+        GLib.Value val;
+        model.get_value (iter, col, out val);
+        if (val.holds (GLib.Type.OBJECT)) {
+            return (T)val.get_object ();
+        }
+        return null;
     }
 }

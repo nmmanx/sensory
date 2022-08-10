@@ -24,4 +24,8 @@ public class ChipSubFeature {
     public bool is_input_subfeat () {
         return (int)subfeat.type == ((int)feature.feature.type << 8);
     }
+
+    public string get_name () {
+        return feature.get_name () + "/" + subfeat.name;
+    }
 }
