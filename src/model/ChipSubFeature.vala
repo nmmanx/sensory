@@ -28,4 +28,8 @@ public class ChipSubFeature {
     public string get_name () {
         return feature.get_name () + "/" + subfeat.name;
     }
+
+    public Sensors.FeatureType get_feature_type () {
+        return feature.feature.type;
+    }
 }

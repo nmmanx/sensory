@@ -13,4 +13,12 @@ public class Sensor : GLib.Object {
             this.on_value_changed (this, val);
         }
     }
+
+    public Sensors.FeatureType get_feature_type () {
+        return subfeat.get_feature_type ();
+    }
+
+    public string get_name () {
+        return subfeat.get_name ();
+    }
 }

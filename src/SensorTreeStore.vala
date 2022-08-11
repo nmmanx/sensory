@@ -1,6 +1,8 @@
 public class SensorTreeStore : Gtk.TreeStore {
     private Gee.Map<string, Sensor> sensors;
 
+    public signal void graph_request (Sensor sensor, bool enabled);
+
     public class GraphColumnData : GLib.Object {
         public bool visible { set; get; }
         public bool active { set; get; }
@@ -65,6 +67,15 @@ public class SensorTreeStore : Gtk.TreeStore {
             var graph_col_data = get_column_object<GraphColumnData> (this, iter, 2);
             graph_col_data.active = !graph_col_data.active;
             set_value (iter, 2, graph_col_data);
+
+            if (graph_col_data.visible) {
+                Sensor ss = sensors.get (path);
+                if (graph_col_data.active) {
+                    this.graph_request (ss, true);
+                } else {
+                    this.graph_request (ss, false);
+                }
+            }
         });
     }
 

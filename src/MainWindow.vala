@@ -41,6 +41,8 @@ public class MainWindow : Gtk.ApplicationWindow {
 
         set_time_tick_sec (DEFAULT_TIMEOUT_SEC);
         time_tick_func ();
+
+        model.graph_request.connect (graph_pannel.on_graph_request);
     }
 
     public MainWindow (Gtk.Application app) {
