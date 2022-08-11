@@ -1,9 +1,9 @@
 public class GraphWidget : Gtk.DrawingArea {
-    private Gee.Set<Sensor> sensors;
+    private Gee.Set<SensorModel> sensors;
     private Sensors.FeatureType feature_type;
 
     construct {
-        sensors = new Gee.TreeSet<Sensor> ((a, b) => {
+        sensors = new Gee.TreeSet<SensorModel> ((a, b) => {
             if (a.get_name () > b.get_name ()) {
                 return 1;
             } else if (a.get_name () < b.get_name ()) {
@@ -15,7 +15,7 @@ public class GraphWidget : Gtk.DrawingArea {
         draw.connect (on_draw);
     }
 
-    public GraphWidget (Sensor first_sensor) {
+    public GraphWidget (SensorModel first_sensor) {
         sensors.add (first_sensor);
         feature_type = first_sensor.get_feature_type ();
     }
@@ -31,7 +31,7 @@ public class GraphWidget : Gtk.DrawingArea {
         return feature_type;
     }
 
-    public bool add_sensor (Sensor ss) {
+    public bool add_sensor (SensorModel ss) {
         if (ss.get_feature_type () != feature_type) {
             return false;
         }
@@ -42,7 +42,7 @@ public class GraphWidget : Gtk.DrawingArea {
         return true;
     }
 
-    public void remove_sensor (Sensor ss) {
+    public void remove_sensor (SensorModel ss) {
         sensors.remove (ss);
     }
 

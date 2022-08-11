@@ -13,7 +13,7 @@ public class GraphPanel : Gtk.Bin {
         graphs = new Gee.ArrayList<GraphWidget> ();
     }
 
-    public void on_graph_request (Sensor sensor, bool enabled) {
+    public void on_graph_request (SensorModel sensor, bool enabled) {
         GraphWidget? g = null;
         
         foreach (GraphWidget wg in graphs) {

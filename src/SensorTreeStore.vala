@@ -1,7 +1,7 @@
 public class SensorTreeStore : Gtk.TreeStore {
-    private Gee.Map<string, Sensor> sensors;
+    private Gee.Map<string, SensorModel> sensors;
 
-    public signal void graph_request (Sensor sensor, bool enabled);
+    public signal void graph_request (SensorModel sensor, bool enabled);
 
     public class GraphColumnData : GLib.Object {
         public bool visible { set; get; }
@@ -15,7 +15,7 @@ public class SensorTreeStore : Gtk.TreeStore {
             GLib.Type.OBJECT
         };
         set_column_types(columnTypes);
-        sensors = new Gee.HashMap<string, Sensor> ();
+        sensors = new Gee.HashMap<string, SensorModel> ();
     }
 
     public SensorTreeStore (Gee.List<SensorChip> chips) {
@@ -40,7 +40,7 @@ public class SensorTreeStore : Gtk.TreeStore {
                     if (subfeat.is_input_subfeat ()) {
                         double val = 0;
                         if (subfeat.get_value (out val)) {
-                            Sensor ss = create_new_sensor (iter2, subfeat);
+                            SensorModel ss = create_new_sensor (iter2, subfeat);
                             stdout.printf ("map: %s -> %s\n", get_string_from_iter (iter2), subfeat.get_name ());
                             sensors.set (get_string_from_iter (iter2), ss);
                             ss.update ();
@@ -52,8 +52,8 @@ public class SensorTreeStore : Gtk.TreeStore {
         }
     }
 
-    private Sensor create_new_sensor (Gtk.TreeIter iter, ChipSubFeature subfeat) {
-        Sensor sensor = new Sensor (subfeat);
+    private SensorModel create_new_sensor (Gtk.TreeIter iter, ChipSubFeature subfeat) {
+        SensorModel sensor = new SensorModel (subfeat);
         sensor.on_value_changed.connect ((s, val) => {
             set_value (iter, 1, val);
         });
@@ -69,7 +69,7 @@ public class SensorTreeStore : Gtk.TreeStore {
             set_value (iter, 2, graph_col_data);
 
             if (graph_col_data.visible) {
-                Sensor ss = sensors.get (path);
+                SensorModel ss = sensors.get (path);
                 if (graph_col_data.active) {
                     this.graph_request (ss, true);
                 } else {

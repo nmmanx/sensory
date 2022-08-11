@@ -1,9 +1,9 @@
-public class Sensor : GLib.Object {
+public class SensorModel : GLib.Object {
     private ChipSubFeature subfeat;
 
-    public signal void on_value_changed (Sensor sensor, double val);
+    public signal void on_value_changed (SensorModel sensor, double val);
 
-    public Sensor (ChipSubFeature subfeat) {
+    public SensorModel (ChipSubFeature subfeat) {
         this.subfeat = subfeat;
     }
 
