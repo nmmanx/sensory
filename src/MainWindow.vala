@@ -53,6 +53,8 @@ public class MainWindow : Gtk.ApplicationWindow {
 
     private bool time_tick_func () {
         model.update ();
+        graph_pannel.update ();
+
         if (change_time_tick_requested) {
             change_time_tick_requested = false;
             GLib.Timeout.add_seconds (time_tick_sec, time_tick_func, GLib.Priority.HIGH);

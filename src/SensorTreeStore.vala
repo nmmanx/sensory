@@ -55,7 +55,7 @@ public class SensorTreeStore : Gtk.TreeStore {
     private SensorModel create_new_sensor (Gtk.TreeIter iter, ChipSubFeature subfeat) {
         SensorModel sensor = new SensorModel (subfeat);
         sensor.on_value_changed.connect ((s, val) => {
-            set_value (iter, 1, val);
+            set_value (iter, 1, s.push (val));
         });
         return sensor;
     }

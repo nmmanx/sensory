@@ -1,9 +1,10 @@
-public class SensorModel : GLib.Object {
+public class SensorModel : TimeSeriesData {
     private ChipSubFeature subfeat;
 
     public signal void on_value_changed (SensorModel sensor, double val);
 
     public SensorModel (ChipSubFeature subfeat) {
+        base (subfeat.get_name (), 2, 120); // TODO: fix hardcode
         this.subfeat = subfeat;
     }
 

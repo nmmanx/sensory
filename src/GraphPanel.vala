@@ -17,23 +17,25 @@ public class GraphPanel : Gtk.Bin {
         GraphWidget? g = null;
         
         foreach (GraphWidget wg in graphs) {
-            if (wg.get_feature_type () == sensor.get_feature_type ()) {
+            if (wg.profile.feature_name == sensor.get_feature_type ().to_string ()) {
                 g = wg;
                 break;
             }
         }
         if (g != null) {
             if (enabled) {
-                g.add_sensor (sensor);
+                g.add (sensor);
             } else {
-                g.remove_sensor (sensor);
-                if (g.count_sensors () == 0) {
+                g.remove (sensor);
+                if (g.count () == 0) {
                     graph_box.remove (g);
                     graphs.remove (g);
                 }
             }
         } else if (enabled) {
-            g = new GraphWidget (sensor);
+            var pf = build_graph_profile (sensor.get_feature_type ());
+            g = new GraphWidget (pf);
+            g.add (sensor);
             graphs.add (g);
 
             g.margin_top = 6;
@@ -42,6 +44,28 @@ public class GraphPanel : Gtk.Bin {
 
             graph_box.pack_start (g, false, false, 0);
             graph_box.show_all ();
+        }
+    }
+
+    private GraphProfile build_graph_profile (Sensors.FeatureType type) {
+        switch (type) {
+            case Sensors.FeatureType.TEMP:
+                return new GraphProfile.Builder (type.to_string ())
+                    .set_graph_title ("Temperature History")
+                    .set_x_title ("")
+                    .set_x_unit("C")
+                    .set_x_limit (100, 0, 20)
+                    .set_time_window (60)
+                    .set_time_window_step (10)
+                    .build ();
+            default:
+                return new GraphProfile.Builder (type.to_string ()).build ();
+        }
+    }
+
+    public void update () {
+        foreach (var g in graphs) {
+            g.queue_draw ();
         }
     }
 }
