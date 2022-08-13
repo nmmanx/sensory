@@ -39,8 +39,8 @@ public class GraphPanel : Gtk.Bin {
             graphs.add (g);
 
             g.margin_top = 6;
-            g.margin_start = 6;
-            g.margin_end = 6;
+            g.margin_start = 12;
+            g.margin_end = 12;
 
             graph_box.pack_start (g, false, false, 0);
             graph_box.show_all ();
@@ -48,15 +48,26 @@ public class GraphPanel : Gtk.Bin {
     }
 
     private GraphProfile build_graph_profile (Sensors.FeatureType type) {
+        var time_window = 10;
+
         switch (type) {
             case Sensors.FeatureType.TEMP:
                 return new GraphProfile.Builder (type.to_string ())
-                    .set_graph_title ("Temperature History")
+                    .set_graph_title ("Temperature")
                     .set_x_title ("")
-                    .set_x_unit("C")
-                    .set_x_limit (100, 0, 20)
-                    .set_time_window (60)
-                    .set_time_window_step (10)
+                    .set_x_unit("")
+                    .set_x_limit (120, 0, 20)
+                    .set_time_window (time_window)
+                    .set_time_window_step (1)
+                    .build ();
+            case Sensors.FeatureType.IN:
+                return new GraphProfile.Builder (type.to_string ())
+                    .set_graph_title ("Voltage input")
+                    .set_x_title ("")
+                    .set_x_unit("")
+                    .set_x_limit (20, 0, 5)
+                    .set_time_window (time_window)
+                    .set_time_window_step (1)
                     .build ();
             default:
                 return new GraphProfile.Builder (type.to_string ()).build ();

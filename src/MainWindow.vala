@@ -3,7 +3,7 @@ public class MainWindow : Gtk.ApplicationWindow {
     private GraphPanel graph_pannel;
     private SensorTreeStore model;
     
-    private const uint DEFAULT_TIMEOUT_SEC = 2;
+    private const uint DEFAULT_TIMEOUT_SEC = 1;
     private uint time_tick_sec;
     private bool change_time_tick_requested;
 
