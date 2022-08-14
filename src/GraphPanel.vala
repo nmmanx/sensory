@@ -48,7 +48,8 @@ public class GraphPanel : Gtk.Bin {
     }
 
     private GraphProfile build_graph_profile (Sensors.FeatureType type) {
-        var time_window = 10;
+        var time_window = 60;
+        var time_window_step = 5;
 
         switch (type) {
             case Sensors.FeatureType.TEMP:
@@ -58,7 +59,7 @@ public class GraphPanel : Gtk.Bin {
                     .set_x_unit("")
                     .set_x_limit (120, 0, 20)
                     .set_time_window (time_window)
-                    .set_time_window_step (1)
+                    .set_time_window_step (time_window_step)
                     .build ();
             case Sensors.FeatureType.IN:
                 return new GraphProfile.Builder (type.to_string ())
@@ -67,7 +68,7 @@ public class GraphPanel : Gtk.Bin {
                     .set_x_unit("")
                     .set_x_limit (20, 0, 5)
                     .set_time_window (time_window)
-                    .set_time_window_step (1)
+                    .set_time_window_step (time_window_step)
                     .build ();
             default:
                 return new GraphProfile.Builder (type.to_string ()).build ();

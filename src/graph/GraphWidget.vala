@@ -11,7 +11,7 @@ public class GraphWidget : Gtk.DrawingArea {
             }
             return 0;
         });
-        set_size_request (-1, 180);
+        set_size_request (-1, 200);
         draw.connect (on_draw);
     }
 
@@ -44,8 +44,8 @@ public class GraphWidget : Gtk.DrawingArea {
 
     private void draw_graph (Cairo.Context cr, Cairo.Rectangle rec) {
         var padding = 6;
-        var ver_label_width = 30;
-        var hor_label_height = 30;
+        var ver_label_width = 40;
+        var hor_label_height = 20;
         rec.width -= ver_label_width + padding;
         rec.height -= hor_label_height + padding;
         rec.x += padding;
@@ -61,11 +61,10 @@ public class GraphWidget : Gtk.DrawingArea {
         int num_lines = (int)((profile.x_upper - profile.x_lower) / profile.x_step);
         double line_offset = rec.height / num_lines;
         double line_start = line_offset;
-        double val = profile.x_upper;
 
         var label_font_size = 10;
         var label_value = profile.x_upper; 
-        draw_text_mono (cr, label_value.to_string (), label_font_size, rec.x + rec.width + 6, rec.y + label_font_size / 2);
+        draw_label_text (cr, label_value.to_string (), label_font_size, rec.x + rec.width + 6, rec.y, true);
         label_value -= profile.x_step;
 
         cr.set_line_width (0.5);
@@ -74,22 +73,24 @@ public class GraphWidget : Gtk.DrawingArea {
             cr.move_to (rec.x, rec.y + line_start);
             cr.line_to (rec.x + rec.width, rec.y + line_start);
             cr.stroke ();
-            draw_text_mono (cr, label_value.to_string (), label_font_size, rec.x + rec.width + 6, rec.y + line_start+ label_font_size / 2);
+            draw_label_text (cr, label_value.to_string (),
+                label_font_size, rec.x + rec.width + 6, rec.y + line_start, true);
             line_start += line_offset;
             label_value -= profile.x_step;
             num_lines--;
         }
 
-        draw_text_mono (cr, profile.x_lower.to_string (), label_font_size, rec.x + rec.width + 6, rec.y + rec.height + label_font_size / 2);
+        draw_label_text (cr, profile.x_lower.to_string (),
+            label_font_size, rec.x + rec.width + 6, rec.y + rec.height, true);
 
         // Draw vertical lines
         num_lines = (int)(profile.time_window / profile.time_window_step);
         line_offset = rec.width / num_lines;
         line_start = line_offset;
-
         label_value = profile.time_window;
-        // TODO: must not use label_font_size / 2, calculate text width instead
-        draw_text_mono (cr, label_value.to_string (), label_font_size, rec.x - label_font_size / 2, rec.y + rec.height + label_font_size + 6);
+
+        draw_label_text (cr, label_value.to_string () + "s",
+            label_font_size, rec.x, rec.y + rec.height + 6, false);
         label_value -= profile.time_window_step;
 
         cr.set_source_rgba (0, 0, 0, 0.5);
@@ -97,7 +98,8 @@ public class GraphWidget : Gtk.DrawingArea {
             cr.move_to (rec.x + line_start, rec.y);
             cr.line_to (rec.x + line_start, rec.y + rec.height);
             cr.stroke ();
-            draw_text_mono (cr, label_value.to_string (), label_font_size, rec.x + line_start - label_font_size / 2, rec.y + rec.height + label_font_size + 6);
+            draw_label_text (cr, label_value.to_string (),
+                label_font_size, rec.x + line_start, rec.y + rec.height + 6, false);
             line_start += line_offset;
             label_value -= profile.time_window_step;
             num_lines--;
@@ -113,32 +115,45 @@ public class GraphWidget : Gtk.DrawingArea {
         //  cr.rectangle (0, 0, this.get_allocated_width (), this.get_allocated_height ());
         //  cr.fill ();
 
-        var title_font_size = 13;
-        var padding = 2;
+        var title_font_size = 14;
 
-        draw_text (cr, profile.graph_title, title_font_size, padding, title_font_size);
+        cr.set_source_rgb (0.2, 0.2, 0.2);
+        cr.select_font_face ("inter", Cairo.FontSlant.NORMAL, Cairo.FontWeight.NORMAL);
+        cr.set_font_size (title_font_size);
+        var title_extents = calculate_text_extents (cr, profile.graph_title);
+
+        cr.move_to (10 + title_extents.x_bearing, title_extents.height);
+        cr.show_text (profile.graph_title);
 
         draw_graph (cr, Cairo.Rectangle () { 
-            x = padding,
-            y = title_font_size + 6 + padding,
-            width = this.get_allocated_width () - padding * 2,
-            height = this.get_allocated_height () - (title_font_size + 6) - padding * 2
+            x = 6,
+            y = title_extents.height + 2,
+            width = this.get_allocated_width () - 12,
+            height = this.get_allocated_height () - (title_extents.height + 2) - 12
         });
 
         return true;
     }
 
-    private void draw_text (Cairo.Context cr, string txt, int size, double x, double y, string font = "inter") {
-        cr.set_source_rgb (0.2, 0.2, 0.2);
-        cr.move_to (x, y);
+    private void draw_label_text (Cairo.Context cr, string txt, int size, double x, double y, bool vertical) {
         cr.select_font_face ("inter", Cairo.FontSlant.NORMAL, Cairo.FontWeight.NORMAL);
         cr.set_font_size (size);
+        var extents = calculate_text_extents (cr, txt);
+        if (vertical) {
+            y = y + extents.height / 2;
+        } else {
+            x = x - extents.width / 2;
+            y = y + extents.height;
+        }
+        cr.set_source_rgb (0.2, 0.2, 0.2);
+        cr.move_to (x, y);
         cr.show_text (txt);
     }
 
-    private void draw_text_mono (Cairo.Context cr, string txt, int size, double x, double y) {
-        // TODO: is this mono font?
-        draw_text (cr, txt, size, x, y, "inter mono");
+    private Cairo.TextExtents calculate_text_extents (Cairo.Context cr, string text) {
+        Cairo.TextExtents extents;
+        cr.text_extents (text, out extents);
+        return extents;
     }
 
     public bool add (TimeSeriesData tsd) {

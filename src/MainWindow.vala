@@ -9,7 +9,7 @@ public class MainWindow : Gtk.ApplicationWindow {
 
     construct {
         this.default_width = 1024;
-        this.default_height = 480;
+        this.default_height = 680;
         this.title = "Sensory";
 
         model = new SensorTreeStore (SensorChip.get_all_sensor_chips ());
