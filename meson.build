@@ -21,6 +21,7 @@ executable(
     'src' / 'model/SensorChip.vala',
     'src' / 'model/ChipFeature.vala',
     'src' / 'model/ChipSubFeature.vala',
+    'src' / 'graph/ColorManager.vala',
     'src' / 'graph/GraphProfile.vala',
     'src' / 'graph/GraphWidget.vala',
     'src' / 'graph/TimeSeriesData.vala',

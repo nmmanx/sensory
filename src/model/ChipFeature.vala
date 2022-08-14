@@ -1,6 +1,6 @@
 public class ChipFeature {
     public unowned Sensors.Feature feature { private set; get; }
-    private SensorChip sensor_chip;
+    public SensorChip sensor_chip { private set; get; }
     public Gee.List<ChipSubFeature> subfeats { private set; get; }
 
     public ChipFeature (SensorChip sensor_chip, Sensors.Feature feature) {

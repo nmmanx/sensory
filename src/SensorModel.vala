@@ -4,7 +4,7 @@ public class SensorModel : TimeSeriesData {
     public signal void on_value_changed (SensorModel sensor, double val);
 
     public SensorModel (ChipSubFeature subfeat) {
-        base (subfeat.get_name (), 1, 120); // TODO: fix hardcode
+        base (subfeat.feature.get_name (), 1, 120); // TODO: fix hardcode
         this.subfeat = subfeat;
     }
 
@@ -17,9 +17,5 @@ public class SensorModel : TimeSeriesData {
 
     public Sensors.FeatureType get_feature_type () {
         return subfeat.get_feature_type ();
-    }
-
-    public string get_name () {
-        return subfeat.get_name ();
     }
 }

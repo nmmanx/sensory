@@ -1,7 +1,7 @@
 public class ChipSubFeature {
     public unowned Sensors.SubFeature subfeat { private set; get; }
-    private SensorChip sensor_chip;
-    private ChipFeature feature;
+    public ChipFeature feature { private set; get; }
+    public SensorChip sensor_chip { private set; get; }
 
     public ChipSubFeature (SensorChip sensor_chip, ChipFeature feature, Sensors.SubFeature subfeat) {
         this.sensor_chip = sensor_chip;

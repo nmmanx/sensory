@@ -38,7 +38,7 @@ public class GraphPanel : Gtk.Bin {
             g.add (sensor);
             graphs.add (g);
 
-            g.margin_top = 6;
+            g.margin_top = 12;
             g.margin_start = 12;
             g.margin_end = 12;
 

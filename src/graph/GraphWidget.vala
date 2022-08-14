@@ -1,17 +1,17 @@
 public class GraphWidget : Gtk.DrawingArea {
     public GraphProfile profile { private set; get; }
-    private Gee.Set<TimeSeriesData> line_data;
+    private Gee.List<TimeSeriesData> line_data;
+    private ColorManager color_mgr;
+
+    private const int SMALL_PADDING = 6;
+    private const int LEGEND_COLUMN_COUNT = 3;
+    private const int GRAPH_REQUEST_HEIGHT = 200;
 
     construct {
-        line_data = new Gee.TreeSet<TimeSeriesData> ((a, b) => {
-            if (a.name > b.name) {
-                return 1;
-            } else if (a.name < b.name) {
-                return -1;
-            }
-            return 0;
+        line_data = new Gee.ArrayList<TimeSeriesData> ((a, b) => {
+            return a.name == b.name;
         });
-        set_size_request (-1, 200);
+        color_mgr = new ColorManager ();
         draw.connect (on_draw);
     }
 
@@ -21,7 +21,8 @@ public class GraphWidget : Gtk.DrawingArea {
 
     private void draw_line (Cairo.Context cr, Cairo.Rectangle rec, TimeSeriesData tsd) {
         cr.set_line_width (2);
-        cr.set_source_rgba (1, 0, 0, 1);
+        var color = color_mgr.get_color (tsd.name);
+        cr.set_source_rgba (color.red, color.green, color.blue, color.alpha);
 
         double hor_step = rec.width / (profile.time_window / tsd.interval);
         double x = rec.x + rec.width;
@@ -43,13 +44,12 @@ public class GraphWidget : Gtk.DrawingArea {
     }
 
     private void draw_graph (Cairo.Context cr, Cairo.Rectangle rec) {
-        var padding = 6;
         var ver_label_width = 40;
         var hor_label_height = 20;
-        rec.width -= ver_label_width + padding;
-        rec.height -= hor_label_height + padding;
-        rec.x += padding;
-        rec.y += padding;
+        rec.width -= ver_label_width + SMALL_PADDING;
+        rec.height -= hor_label_height + SMALL_PADDING;
+        rec.x += SMALL_PADDING;
+        rec.y += SMALL_PADDING;
 
         // Draw graph area
         cr.set_line_width (2);
@@ -108,7 +108,28 @@ public class GraphWidget : Gtk.DrawingArea {
         foreach (var tsd in line_data) {
             draw_line (cr, rec, tsd);
         }   
-    }   
+    }
+
+    private void draw_legend (Cairo.Context cr, Cairo.Rectangle rec, int row_count, int cell_height) {
+        var cell_width = rec.width / LEGEND_COLUMN_COUNT;
+
+        for (int i = 0; i < line_data.size; i++) {
+            var tsd = line_data.get (i);
+            var row = i / LEGEND_COLUMN_COUNT;
+            var col = i % LEGEND_COLUMN_COUNT;
+
+            var color = get_line_color (tsd);
+            var x = rec.x + SMALL_PADDING + col * cell_width;
+            var y = rec.y + row * cell_height + cell_height / 2;
+            cr.set_source_rgba (color.red, color.green, color.blue, color.alpha);
+            cr.set_line_width (6);
+            cr.set_line_cap (Cairo.LineCap.ROUND);
+            cr.move_to (x, y);
+            cr.line_to (x + 25, y);
+            cr.stroke ();
+            draw_label_text (cr, tsd.name.replace ("/", " - "), 12, x + 25 + SMALL_PADDING, y, true);
+        }
+    }
 
     private bool on_draw (Cairo.Context cr) {
         //  cr.set_source_rgb (0.5, 0.5, 0.5);
@@ -125,13 +146,30 @@ public class GraphWidget : Gtk.DrawingArea {
         cr.move_to (10 + title_extents.x_bearing, title_extents.height);
         cr.show_text (profile.graph_title);
 
-        draw_graph (cr, Cairo.Rectangle () { 
-            x = 6,
-            y = title_extents.height + 2,
-            width = this.get_allocated_width () - 12,
-            height = this.get_allocated_height () - (title_extents.height + 2) - 12
-        });
+        var legend_cell_height = 20;
+        var legend_row_count = line_data.size % LEGEND_COLUMN_COUNT == 0 ?
+                                line_data.size / LEGEND_COLUMN_COUNT : line_data.size / LEGEND_COLUMN_COUNT + 1;
+        var legend_height = legend_row_count * legend_cell_height;
 
+        var graph_rec = Cairo.Rectangle () { 
+            x = SMALL_PADDING,
+            y = title_extents.height + 2,
+            width = this.get_allocated_width () - SMALL_PADDING * 2,
+            height = GRAPH_REQUEST_HEIGHT - (title_extents.height + 2) - SMALL_PADDING * 2
+        };
+        
+        var legend_rec = Cairo.Rectangle () { 
+            x = SMALL_PADDING,
+            y = graph_rec.y + graph_rec.height + 2,
+            width = this.get_allocated_width () - SMALL_PADDING * 2,
+            height = legend_height
+        };
+
+        set_size_request (-1, (int)(legend_rec.y + legend_rec.height));
+        
+        draw_graph (cr, graph_rec);
+        draw_legend (cr, legend_rec, legend_row_count, legend_cell_height);
+        
         return true;
     }
 
@@ -140,9 +178,9 @@ public class GraphWidget : Gtk.DrawingArea {
         cr.set_font_size (size);
         var extents = calculate_text_extents (cr, txt);
         if (vertical) {
-            y = y + extents.height / 2;
+            y = y - (extents.height / 2 + extents.y_bearing);
         } else {
-            x = x - extents.width / 2;
+            x = x - (extents.width / 2 + extents.x_bearing);
             y = y + extents.height;
         }
         cr.set_source_rgb (0.2, 0.2, 0.2);
@@ -156,14 +194,22 @@ public class GraphWidget : Gtk.DrawingArea {
         return extents;
     }
 
+    private Gdk.RGBA get_line_color (TimeSeriesData tsd) {
+        return color_mgr.get_color (tsd.name);
+    }
+
     public bool add (TimeSeriesData tsd) {
-        line_data.add (tsd);
-        queue_draw ();
-        return true;
+        if (!line_data.contains (tsd)) { 
+            line_data.add (tsd);
+            queue_draw ();
+            return true;
+        }
+        return false;
     }
 
     public void remove (TimeSeriesData tsd) {
         line_data.remove (tsd);
+        color_mgr.release_color (tsd.name);
         queue_draw ();
     }
 
