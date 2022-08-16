@@ -80,4 +80,10 @@ public class GraphPanel : Gtk.Bin {
             g.queue_draw ();
         }
     }
+
+    public void deliver_line_select_event (string name) {
+        foreach (var g in graphs) {
+            g.on_line_selected (name);
+        }
+    }
 }

@@ -93,4 +93,11 @@ public class SensorTreeStore : Gtk.TreeStore {
             entry.value.update ();
         }
     }
+
+    public TimeSeriesData? get_model (string path) {
+        if (sensors.has_key (path)) {
+            return sensors.get (path);
+        }
+        return null;
+    }
 }

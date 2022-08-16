@@ -2,6 +2,7 @@ public class GraphWidget : Gtk.DrawingArea {
     public GraphProfile profile { private set; get; }
     private Gee.List<TimeSeriesData> line_data;
     private ColorManager color_mgr;
+    private string? selected_line;
 
     private const int SMALL_PADDING = 6;
     private const int LEGEND_COLUMN_COUNT = 3;
@@ -13,15 +14,32 @@ public class GraphWidget : Gtk.DrawingArea {
         });
         color_mgr = new ColorManager ();
         draw.connect (on_draw);
+
+        // Unselect line by clicking
+        this.add_events (Gdk.EventMask.BUTTON_PRESS_MASK);
+        this.button_press_event.connect (() => {
+            this.selected_line = null;
+            queue_draw ();
+        });
     }
 
     public GraphWidget (GraphProfile profile) {
         this.profile = profile;
     }
 
-    private void draw_line (Cairo.Context cr, Cairo.Rectangle rec, TimeSeriesData tsd) {
-        cr.set_line_width (2);
+    private void draw_line (Cairo.Context cr, Cairo.Rectangle rec, TimeSeriesData tsd, bool selected) {
         var color = color_mgr.get_color (tsd.name);
+        if (selected) {
+            cr.set_line_width (3);
+            color.alpha = 1;
+        } else {
+            cr.set_line_width (2);
+            if (selected_line != null) {
+                color.alpha = 0.5;
+            } else {
+                color.alpha = 1;
+            }
+        }
         cr.set_source_rgba (color.red, color.green, color.blue, color.alpha);
 
         double hor_step = rec.width / (profile.time_window / tsd.interval);
@@ -105,9 +123,18 @@ public class GraphWidget : Gtk.DrawingArea {
             num_lines--;
         }
 
+        TimeSeriesData? selected_tsd = null;
         foreach (var tsd in line_data) {
-            draw_line (cr, rec, tsd);
-        }   
+            if (tsd.name != selected_line) {
+                draw_line (cr, rec, tsd, false);
+            } else {
+                selected_tsd = tsd;
+            }
+        }
+        
+        if (selected_tsd != null) {
+            draw_line (cr, rec, selected_tsd, true);
+        }
     }
 
     private void draw_legend (Cairo.Context cr, Cairo.Rectangle rec, int row_count, int cell_height) {
@@ -215,5 +242,19 @@ public class GraphWidget : Gtk.DrawingArea {
 
     public uint count () {
         return line_data.size;
+    }
+
+    public void on_line_selected (string name) {
+        var found = false;
+        foreach (var line in line_data) {
+            if (line.name == name) {
+                found = true;
+                this.selected_line = name;
+            }
+        }
+        if (!found) {
+            this.selected_line = null;
+        }
+        queue_draw ();
     }
 }

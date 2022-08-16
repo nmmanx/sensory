@@ -16,6 +16,14 @@ public class MainWindow : Gtk.ApplicationWindow {
         sensor_view = new SensorTreeView (model);
         graph_pannel = new GraphPanel ();
 
+        sensor_view.set_activate_on_single_click (true);
+        sensor_view.row_activated.connect((path, col) => {
+            TimeSeriesData? model = model.get_model (path.to_string ());
+            if (model != null) {
+                graph_pannel.deliver_line_select_event (model.name);
+            }
+        });
+
         var paned = new Gtk.Paned (Gtk.Orientation.HORIZONTAL);
         var sensor_panel = new Gtk.Box (Gtk.Orientation.VERTICAL, 0);
         
